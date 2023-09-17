@@ -1,0 +1,48 @@
+.terminal {
+    height: calc(100% - 40px);
+    overflow-y: auto;
+    background-color: #3C3C3C;
+    color: #C4C4C4;
+    padding: 20px 30px;
+    font-size: 14px;
+    line-height: 1.42;
+    font-family: 'IBM Plex Mono', Consolas, Menlo, Monaco, 'Courier New', Courier,
+    monospace;
+    text-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.terminal_line {
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.terminal_prompt {
+    display: flex;
+    align-items: center;
+}
+
+.terminal_prompt_label {
+    flex: 0 0 auto;
+    color: #ffffff;
+}
+
+.terminal_prompt_input {
+    flex: 1;
+    margin-left: 0.5em;
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.terminal_prompt_input input {
+    flex: 1;
+    width: 100%;
+    background-color: transparent;
+    color: white;
+    border: 0;
+    outline: none;
+    font-size: 14px;
+    line-height: 1.42;
+    font-family: 'IBM Plex Mono', Consolas, Menlo, Monaco, 'Courier New', Courier,
+    monospace;
+}
