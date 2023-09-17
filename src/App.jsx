@@ -58,18 +58,6 @@ NEXT i`);
 
     const ResponsiveGridLayout = WidthProvider(Responsive);
 
-    // let pseudo2wasm;
-    // promise.then((foo) => (pseudo2wasm = foo));
-
-    // const commands = {
-    //     egg: "An egg? Maybe...",
-    //     run: run,
-    // };
-
-    // const run = useCallback(() => {
-
-    // }, [compiler, runner, pseudo2wasm]);
-
     const commands = useMemo(
         () => ({
             help: () => {
@@ -132,7 +120,7 @@ NEXT i`);
                 );
             },
         }),
-        [pushToHistory, compiler, runner, value]
+        [pushToHistory, compiler, runner, op]
     );
 
     // temporary
