@@ -5,11 +5,9 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { NativeSelect } from "@mui/material";
-import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
-import AbcIcon from "@mui/icons-material/Abc";
 
-export default function SelectRunner({ runner, setRunner }) {
+export default function SelectRunner({ runner, setRunner}) {
     const handleChange = (event) => {
         setRunner((p) => event.target.value);
     };

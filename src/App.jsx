@@ -8,7 +8,7 @@ import React, {
 
 import "./App.css";
 
-import { Button } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
 import { Stack, Container } from "@mui/material/";
 
 import SelectRunner from "./SelectRunner";
@@ -30,11 +30,17 @@ import { compile, runtime } from "./Runners/runner1";
 
 import { keywords, analyze } from "./pseudolang";
 
+import { ToggleButton, ToggleButtonGroup } from "@mui/material";
+
+import CheckIcon from "@mui/icons-material/Check";
+
 export default function App() {
     const compiler = useMemo(
         () => ["Pseudo2Wasm", "Web-interpreter", "CAIE-Code"],
         []
     );
+
+    const [op, setOp] = useState(false);
 
     const editorRef = useRef(0);
 
@@ -85,7 +91,7 @@ NEXT i`);
             },
             run: async () => {
                 if (runner === 0)
-                    runtime(value, commands.output).then((time) =>
+                    runtime(editorRef.current.getValue(), commands.output, op).then((time) =>
                         commands.output(`Execution complete in ${time}ms`)
                     );
 
@@ -350,6 +356,18 @@ NEXT i`);
                     runner={runner}
                     setRunner={setRunner}
                 ></SelectRunner>
+                <Tooltip title="Optimization">
+                    <ToggleButton
+                        color="primary"
+                        value="check"
+                        selected={op}
+                        onChange={() => {
+                            setOp(!op);
+                        }}
+                    >
+                        <CheckIcon />
+                    </ToggleButton>
+                </Tooltip>
             </Stack>
 
             {/* currently no width resize

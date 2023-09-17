@@ -17,10 +17,11 @@ export function compile(input) {
     return module;
 }
 
-export async function runtime(input, output) {
+export async function runtime(input, output, op) {
     const module = compile(input);
 
-    // module.optimize();
+    if (op)
+        module.optimize();
 
     console.log(module.emitText());
     const wasm = module.emitBinary();
