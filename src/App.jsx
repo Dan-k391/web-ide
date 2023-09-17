@@ -133,11 +133,12 @@ export default function App() {
                 <div>
                     <strong>Welcome to this WebIDE</strong>
                 </div>
-                <div>Use help to display all commands</div>
+                <div>Use 'help' to display all commands</div>
+                <div>Project github: <a target="_blank" href="https://github.com/Dan-k391/web-ide" style={{color: "white"}}>here</a></div>
                 <div>Thanks to <a target="_blank" href="https://codesandbox.io/s/react-terminal-emulator-5wnk8o" style={{color: "white"}}>react-terminal-emulator</a> for the terminal template,</div>
                 <div><a target="_blank" href="https://microsoft.github.io/monaco-editor" style={{color: "white"}}>monaco-editor</a> for the editor,</div>
                 <div>and</div>
-                <div><a target="_blank" href="https://github.com/react-grid-layout/react-grid-layout" style={{color: "white"}}>react-grid-layout</a> for the grid layout</div>
+                <div><a target="_blank" href="https://github.com/react-grid-layout/react-grid-layout" style={{color: "white"}}>react-grid-layout</a> for the resizeable and dragable grid layout</div>
             </>
         );
     }, [resetTerminal, pushToHistory]);
