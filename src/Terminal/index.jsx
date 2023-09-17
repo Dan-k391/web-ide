@@ -16,10 +16,6 @@ export const Terminal = forwardRef((props, ref) => {
     const inputRef = useRef(0);
     const [input, setInput] = useState("");
 
-    useEffect(() => {
-        inputRef.current?.focus();
-    });
-
     // const moveEndInput = useCallback(() => {
     //     let len = inputRef.current?.value.length;
     //     console.log(inputRef.current?.value.length);

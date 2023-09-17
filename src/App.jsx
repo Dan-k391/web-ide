@@ -23,18 +23,29 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 
 import GridLayout from "react-grid-layout";
 
-
 import { Terminal } from "./Terminal";
 import { useTerminal } from "./Terminal/hooks";
 
 import { compile, runtime } from "./Runners/runner1";
 
-import { keywords } from "./pseudolang";
+import { keywords, analyze } from "./pseudolang";
 
 export default function App() {
-    const compiler = useMemo(() => (["Pseudo2Wasm", "Web-interpreter", "CAIE-Code"]), []);
+    const compiler = useMemo(
+        () => ["Pseudo2Wasm", "Web-interpreter", "CAIE-Code"],
+        []
+    );
+
+    const editorRef = useRef(0);
+
     const monacoRef = useRef(0);
     const [runner, setRunner] = useState(0);
+
+    const [value, setValue] = useState(`DECLARE i:INTEGER
+
+FOR i <- 0 TO 100
+    OUTPUT i
+NEXT i`);
 
     const { history, pushToHistory, setTerminalRef, resetTerminal } =
         useTerminal();
@@ -74,10 +85,9 @@ export default function App() {
             },
             run: async () => {
                 if (runner === 0)
-                        runtime(monacoRef.current.getValue(), commands.output)
-                        .then((time) =>
-                            commands.output(`Execution complete in ${time}ms`)
-                        );
+                    runtime(value, commands.output).then((time) =>
+                        commands.output(`Execution complete in ${time}ms`)
+                    );
 
                 pushToHistory(
                     <>
@@ -116,7 +126,7 @@ export default function App() {
                 );
             },
         }),
-        [pushToHistory, compiler, runner]
+        [pushToHistory, compiler, runner, value]
     );
 
     // temporary
@@ -134,14 +144,71 @@ export default function App() {
                     <strong>Welcome to this WebIDE</strong>
                 </div>
                 <div>Use 'help' to display all commands</div>
-                <div>Project github: <a target="_blank" href="https://github.com/Dan-k391/web-ide" style={{color: "white"}}>here</a></div>
-                <div>Thanks to <a target="_blank" href="https://codesandbox.io/s/react-terminal-emulator-5wnk8o" style={{color: "white"}}>react-terminal-emulator</a> for the terminal template,</div>
-                <div><a target="_blank" href="https://microsoft.github.io/monaco-editor" style={{color: "white"}}>monaco-editor</a> for the editor,</div>
+                <div>
+                    Project github:{" "}
+                    <a
+                        target="_blank"
+                        href="https://github.com/Dan-k391/web-ide"
+                        style={{ color: "white" }}
+                    >
+                        here
+                    </a>
+                </div>
+                <div>
+                    Thanks to{" "}
+                    <a
+                        target="_blank"
+                        href="https://codesandbox.io/s/react-terminal-emulator-5wnk8o"
+                        style={{ color: "white" }}
+                    >
+                        react-terminal-emulator
+                    </a>{" "}
+                    for the terminal template,
+                </div>
+                <div>
+                    <a
+                        target="_blank"
+                        href="https://microsoft.github.io/monaco-editor"
+                        style={{ color: "white" }}
+                    >
+                        monaco-editor
+                    </a>{" "}
+                    for the editor,
+                </div>
                 <div>and</div>
-                <div><a target="_blank" href="https://github.com/react-grid-layout/react-grid-layout" style={{color: "white"}}>react-grid-layout</a> for the resizeable and dragable grid layout</div>
+                <div>
+                    <a
+                        target="_blank"
+                        href="https://github.com/react-grid-layout/react-grid-layout"
+                        style={{ color: "white" }}
+                    >
+                        react-grid-layout
+                    </a>{" "}
+                    for the resizeable and dragable grid layout
+                </div>
             </>
         );
     }, [resetTerminal, pushToHistory]);
+
+    useEffect(() => {
+        let markers = [];
+        let error = analyze(value);
+        if (error) {
+            markers.push({
+                startLineNumber: error.line,
+                endLineNumber: error.line,
+                startColumn: error.startColumn + 1,
+                endColumn: error.endColumn + 1,
+                message: error.message,
+                serverity: monacoRef.current.MarkerSeverity.Error,
+            });
+        }
+        monacoRef.current.editor?.setModelMarkers(
+            editorRef.current?.getModel(),
+            "owner",
+            markers
+        );
+    }, [value]);
 
     function handleEditorWillMount(monaco) {
         monaco.editor.EditorOptions.mouseWheelZoom.defaultValue = true;
@@ -151,15 +218,18 @@ export default function App() {
             inherit: false,
             rules: [
                 { token: "keyword", foreground: "#8e2aa0" },
-                { token: "comment", foreground: "#a1a1a1", fontStyle: "italic" },
+                {
+                    token: "comment",
+                    foreground: "#a1a1a1",
+                    fontStyle: "italic",
+                },
                 { token: "variable", foreground: "#393a42" },
                 { token: "string", foreground: "#71a056" },
                 { token: "char", foreground: "#71a056" },
                 { token: "number", foreground: "#8b690d" },
                 { token: "operators", foreground: "#5a76ef" },
             ],
-            colors: {
-            }
+            colors: {},
         });
         // language custimize
         monaco.languages.register({ id: "pseudocode" });
@@ -167,24 +237,27 @@ export default function App() {
             keywords,
             tokenizer: {
                 root: [
-                    [/[a-zA-Z_]\w*/, {
-                        cases: {
-                            "@keywords": "keyword",
-                            "@default": "variable",
-                        }
-                    }],
+                    [
+                        /[a-zA-Z_]\w*/,
+                        {
+                            cases: {
+                                "@keywords": "keyword",
+                                "@default": "variable",
+                            },
+                        },
+                    ],
                     [/\/\/.*$/, "comment"],
                     [/".*?"/, "string"],
                     [/'.?'/, "char"],
                     [/\d+/, "number"],
                     [/[+\-*/()[\]=<>:,]/, "operators"],
-                ]
-            }
+                ],
+            },
         });
         monaco.languages.registerCompletionItemProvider("pseudocode", {
             provideCompletionItems: () => {
                 var suggestions = [
-                    ...keywords.map(keyword => {
+                    ...keywords.map((keyword) => {
                         return {
                             label: keyword,
                             kind: monaco.languages.CompletionItemKind.Keyword,
@@ -193,17 +266,37 @@ export default function App() {
                     }),
                 ];
                 return { suggestions: suggestions };
-            }
+            },
         });
-    }    
+    }
 
     function handleEditorDidMount(editor, monaco) {
-        monacoRef.current = editor;
+        editor.addAction({
+            id: "run",
+            label: "Run Code",
+
+            keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+            precondition: null,
+
+            keybindingContext: null,
+
+            contextMenuGroupId: "navigation",
+
+            contextMenuOrder: 1.5,
+
+            run: commands.run
+        });
+        editorRef.current = editor;
+        monacoRef.current = monaco;
     }
 
     function showValue() {
-        alert(monacoRef.current.getValue());
+        alert(value);
     }
+
+    const handleInputChange = useCallback((value, event) => {
+        setValue(value);
+    }, []);
 
     return (
         <>
@@ -268,19 +361,20 @@ export default function App() {
                 isDraggable={true}
                 draggableHandle=".grid-item_title"
             >
-                <div className="grid-item" key="a" data-grid={{ x: 0, y: 0, w: 7, h: 24 }}>
+                <div
+                    className="grid-item"
+                    key="a"
+                    data-grid={{ x: 0, y: 0, w: 7, h: 24 }}
+                >
                     <div className="grid-item_title">The Editor</div>
                     <div className="grid-item_content">
                         <Editor
                             defaultLanguage="pseudocode"
                             theme="pseudocode-theme"
-                            defaultValue={`DECLARE i:INTEGER
-
-FOR i <- 0 TO 100
-    OUTPUT i
-NEXT i`}
+                            defaultValue={value}
                             beforeMount={handleEditorWillMount}
                             onMount={handleEditorDidMount}
+                            onChange={handleInputChange}
                         />
                     </div>
                 </div>
@@ -290,7 +384,11 @@ NEXT i`}
                 >
                     b
                 </div> */}
-                <div className="grid-item" key="c" data-grid={{ x: 8, y: 0, w: 5, h: 24 }}>
+                <div
+                    className="grid-item"
+                    key="c"
+                    data-grid={{ x: 8, y: 0, w: 5, h: 24 }}
+                >
                     <div className="grid-item_title">The Terminal</div>
                     <div className="grid-item_content">
                         <Terminal
