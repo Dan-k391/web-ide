@@ -34,11 +34,16 @@ import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
 import CheckIcon from "@mui/icons-material/Check";
 
+import { socket } from "./socket";
+
 export default function App() {
     const compiler = useMemo(
-        () => ["Pseudo2Wasm", "Web-interpreter", "CAIE-Code"],
+        () => ["Pseudo2Wasm", "CAIE-Code", "Web-interpreter"],
         []
     );
+
+    const [isConnected, SetIsConnected] = useState(socket.connected);
+    const [fooEvents, setFooEvents] = useState([]);
 
     const [op, setOp] = useState(false);
 
@@ -47,11 +52,17 @@ export default function App() {
     const monacoRef = useRef(0);
     const [runner, setRunner] = useState(0);
 
-    const [value, setValue] = useState(`DECLARE i:INTEGER
+    const [value, setValue] = useState(`FUNCTION aux(n:INTEGER, acc1:INTEGER, acc2:INTEGER) RETURNS INTEGER
+    IF n = 1 THEN RETURN acc1 ENDIF
+    IF n = 2 THEN RETURN acc2 ENDIF
+    RETURN aux(n - 1, acc2, acc1 + acc2)
+ENDFUNCTION
 
-FOR i <- 0 TO 100
-    OUTPUT i
-NEXT i`);
+DECLARE i:INTEGER
+FOR i <- 0 TO 100000
+    aux(47, 0, 1)
+NEXT i
+`);
 
     const { history, pushToHistory, setTerminalRef, resetTerminal } =
         useTerminal();
@@ -82,6 +93,7 @@ NEXT i`);
                     runtime(editorRef.current.getValue(), commands.output, op).then((time) =>
                         commands.output(`Execution complete in ${time}ms`)
                     );
+                else if (runner === 1)
 
                 pushToHistory(
                     <>

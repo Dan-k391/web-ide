@@ -35,15 +35,16 @@ export async function runtime(input, output, op) {
                 output(value);
             },
             logReal: (value) => {
-                console.log(value);
+                output(value);
             },
             logChar: (value) => {
-                console.log(String.fromCharCode(value));
+                output(String.fromCharCode(value));
             },
             logString: (value) => {
-                const bytes = new Uint8Array(memory.buffer, value);
-                const str = bytes.toString();
-                console.log(str);
+                const bytes = new Uint8Array(memory.buffer, value, 65535 - value);
+                let str = new TextDecoder("utf8").decode(bytes);
+                str = str.split('\0')[0];
+                output(str);
             }
         },
     }

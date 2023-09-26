@@ -27,8 +27,8 @@ export default function SelectRunner({ runner, setRunner}) {
                     onChange={handleChange}
                 >
                     <MenuItem value={0}>Pseudo2Wasm</MenuItem>
-                    <MenuItem value={1}>Web-Interpreter</MenuItem>
-                    <MenuItem value={2}>CAIE-Code</MenuItem>
+                    <MenuItem value={1}>CAIE-Code</MenuItem>
+                    <MenuItem value={2}>Web-Interpreter</MenuItem>
                 </Select>
             </FormControl>
         </Box>
