@@ -34,7 +34,16 @@ import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
 import CheckIcon from "@mui/icons-material/Check";
 
-import { socket } from "./socket";
+// import io from "socket.io-client";
+
+// import SocketIOClient from "socket.io/node_modules/socket.io-client";
+
+// const URL = process.env.NODE_ENV === 'production' ? undefined : 'http://localhost:7788';
+
+// export const socket = io(URL, {
+//     autoConnect: false
+// });
+
 
 export default function App() {
     const compiler = useMemo(
@@ -42,7 +51,7 @@ export default function App() {
         []
     );
 
-    const [isConnected, SetIsConnected] = useState(socket.connected);
+    // const [isConnected, SetIsConnected] = useState(socket.connected);
     const [fooEvents, setFooEvents] = useState([]);
 
     const [op, setOp] = useState(false);
@@ -94,6 +103,7 @@ NEXT i
                         commands.output(`Execution complete in ${time}ms`)
                     );
                 else if (runner === 1)
+                    return;
 
                 pushToHistory(
                     <>

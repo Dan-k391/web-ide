@@ -12,7 +12,9 @@ export function compile(input) {
     const parser = new pseudo2wasm.Parser(tokens);
     const ast = parser.parse();
     console.log(ast);
-    const generator = new pseudo2wasm.Generator(ast);
+    const checker = new pseudo2wasm.Checker(ast);
+    const typedAst = checker.check();
+    const generator = new pseudo2wasm.Generator(typedAst);
     const module = generator.generate();
     return module;
 }
@@ -27,7 +29,8 @@ export async function runtime(input, output, op) {
     const wasm = module.emitBinary();
 
     // initialize import objects
-    const memory = new WebAssembly.Memory({ initial: 1, maximum: 2 });
+    const memory = new WebAssembly.Memory({ initial: 2, maximum: 10 });
+    const maxSize = 65536 * 2 - 1;
     const importObect = {
         env: {
             buffer: memory,
@@ -41,7 +44,7 @@ export async function runtime(input, output, op) {
                 output(String.fromCharCode(value));
             },
             logString: (value) => {
-                const bytes = new Uint8Array(memory.buffer, value, 65535 - value);
+                const bytes = new Uint8Array(memory.buffer, value, maxSize - value);
                 let str = new TextDecoder("utf8").decode(bytes);
                 str = str.split('\0')[0];
                 output(str);
