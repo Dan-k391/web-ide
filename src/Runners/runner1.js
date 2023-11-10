@@ -12,8 +12,10 @@ export function compile(input) {
     const parser = new pseudo2wasm.Parser(tokens);
     const ast = parser.parse();
     console.log(ast);
+    console.log(JSON.stringify(ast));
     const checker = new pseudo2wasm.Checker(ast);
     const typedAst = checker.check();
+    console.log(typedAst);
     const generator = new pseudo2wasm.Generator(typedAst);
     const module = generator.generate();
     return module;

@@ -7,7 +7,7 @@ import Select from "@mui/material/Select";
 import { NativeSelect } from "@mui/material";
 
 
-export default function SelectRunner({ runner, setRunner}) {
+export default function SelectRunner({ runner, setRunner }) {
     const handleChange = (event) => {
         setRunner((p) => event.target.value);
     };

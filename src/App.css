@@ -39,6 +39,7 @@
 
 .grid-item_title {
     height: 30px;
+    background-color: #dadada27;
 }
 
 .grid-item_title:hover {

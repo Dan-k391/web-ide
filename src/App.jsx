@@ -34,6 +34,8 @@ import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 
 import CheckIcon from "@mui/icons-material/Check";
 
+import SyntaxTree from "./SyntaxTree";
+
 // import io from "socket.io-client";
 
 // import SocketIOClient from "socket.io/node_modules/socket.io-client";
@@ -73,6 +75,8 @@ FOR i <- 0 TO 100000
 NEXT i
 `);
 
+    const [ast, setAst] = useState(null);
+    
     const { history, pushToHistory, setTerminalRef, resetTerminal } =
         useTerminal();
 
@@ -208,8 +212,11 @@ NEXT i
 
     useEffect(() => {
         let markers = [];
-        let error = analyze(value);
-        if (error) {
+        try {
+            let tree = analyze(value);
+            setAst(tree);
+        }
+        catch (error) {
             markers.push({
                 startLineNumber: error.line,
                 endLineNumber: error.line,
@@ -406,16 +413,20 @@ NEXT i
                         />
                     </div>
                 </div>
-                {/* <div
+                <div
+                    className="grid-item"
                     key="b"
-                    data-grid={{ x: 0, y: 2, w: 3, h: 2, minW: 2, maxW: 4 }}
+                    data-grid={{ x: 8, y: 0, w: 5, h: 14 }}
                 >
-                    b
-                </div> */}
+                    <div className="grid-item_title">Abstact Syntax Tree</div>
+                    <div className="grid-item_content">
+                        <SyntaxTree ast={ast}/>
+                    </div>
+                </div>
                 <div
                     className="grid-item"
                     key="c"
-                    data-grid={{ x: 8, y: 0, w: 5, h: 24 }}
+                    data-grid={{ x: 8, y: 6, w: 5, h: 10 }}
                 >
                     <div className="grid-item_title">The Terminal</div>
                     <div className="grid-item_content">
@@ -426,6 +437,7 @@ NEXT i
                         />
                     </div>
                 </div>
+
             </GridLayout>
 
             {/* <Stack>
