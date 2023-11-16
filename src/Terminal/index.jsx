@@ -8,6 +8,8 @@ export const Terminal = forwardRef((props, ref) => {
         promptLabel = "$",
 
         commands = {},
+        handleInput,
+        mode,
     } = props;
 
     const [pointer, setPointer] = useState(0);
@@ -33,15 +35,23 @@ export const Terminal = forwardRef((props, ref) => {
 
     const handleInputKeyDown = useCallback((e) => {
         if (e.key === "Enter") {
-            if (input in commands) {
-                const commandToExecute = commands?.[input.toLowerCase()];
-                if (commandToExecute) {
-                    commandToExecute?.();
+            if (mode === 0) {
+                if (input in commands) {
+                    const commandToExecute = commands?.[input.toLowerCase()];
+                    if (commandToExecute) {
+                        commandToExecute?.();
+                    }
+                } else {
+                    commands?.["err"]?.(input);
                 }
-            } else {
-                commands?.["err"]?.(input);
             }
-
+            else if (mode === 1) {
+                if (handleInput) {
+                    handleInput?.(input);
+                    // push to history
+                    commands?.["output"]?.(input);
+                }
+            }
             // setEnteredHistory((p) => [input, ...p]);
             // console.log(enteredHistory);
             setInput("");
@@ -70,8 +80,8 @@ export const Terminal = forwardRef((props, ref) => {
         //         }
         //     }
         // }
-    }, [commands, input]);
-
+    }, [commands, input, handleInput, mode]);
+ 
     return (
         <div className="terminal" ref={ref} onClick={focusInput}>
             {history.map((line, index) => (

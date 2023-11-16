@@ -76,6 +76,12 @@ NEXT i
 `);
 
     const [ast, setAst] = useState(null);
+
+    const [handleInput, setHandleInput] = useState(null);
+    
+    // terminal mode
+    // mode 0: normal mode 1: input mode
+    const [mode, setMode] = useState(0);
     
     const { history, pushToHistory, setTerminalRef, resetTerminal } =
         useTerminal();
@@ -98,17 +104,26 @@ NEXT i
                             <strong> run </strong>
                             to run the program
                         </div>
+                        <div>
+                            Use
+                            <strong> cls </strong>
+                            to clear the terminal
+                        </div>
                     </>
                 );
             },
             run: async () => {
-                if (runner === 0)
-                    runtime(editorRef.current.getValue(), commands.output, op).then((time) =>
-                        commands.output(`Execution complete in ${time}ms`)
-                    );
+                setMode(1);
+                if (runner === 0) {
+                    console.log("calling runtime...");
+                    runtime(editorRef.current.getValue(), commands.output, setHandleInput, op).then((time) => {
+                        commands.output(`Execution complete in ${time}ms`);
+                        setMode(0);
+                    });
+                }
                 else if (runner === 1)
                     return;
-
+                
                 pushToHistory(
                     <>
                         <div>$ run</div>
@@ -137,7 +152,6 @@ NEXT i
                     </>
                 );
             },
-
             output: (value) => {
                 pushToHistory(
                     <>
@@ -145,8 +159,11 @@ NEXT i
                     </>
                 );
             },
+            cls: () => {
+                resetTerminal();
+            },
         }),
-        [pushToHistory, compiler, runner, op]
+        [pushToHistory, compiler, runner, op, resetTerminal]
     );
 
     // temporary
@@ -434,6 +451,8 @@ NEXT i
                             history={history}
                             ref={setTerminalRef}
                             commands={commands}
+                            handleInput={handleInput}
+                            mode={mode}
                         />
                     </div>
                 </div>

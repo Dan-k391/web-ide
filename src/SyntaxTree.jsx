@@ -16,7 +16,6 @@ const useStyles = makeStyles({
 });
 
 function getTreeItems(obj) {
-    console.log(obj);
     let items = [];
     for (let key in obj) {
         // debugger;
