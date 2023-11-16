@@ -31,7 +31,7 @@ export async function runtime(code, output, setHandleInput, op) {
     if (op)
         module.optimize();
 
-    // console.log(module.emitText());
+    console.log(module.emitText());
     const wasm = module.emitBinary();
 
     const pages = 3;
@@ -44,6 +44,7 @@ export async function runtime(code, output, setHandleInput, op) {
     const inputInteger = () => new Promise(resolve => {
         // resolve(parseInt(prompt("Enter an integer")));
         setHandleInput((str) => {
+            console.log(str);
             resolve(parseInt(str));
             setHandleInput(null);
         });

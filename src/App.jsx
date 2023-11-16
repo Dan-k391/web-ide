@@ -63,17 +63,10 @@ export default function App() {
     const monacoRef = useRef(0);
     const [runner, setRunner] = useState(0);
 
-    const [value, setValue] = useState(`FUNCTION aux(n:INTEGER, acc1:INTEGER, acc2:INTEGER) RETURNS INTEGER
-    IF n = 1 THEN RETURN acc1 ENDIF
-    IF n = 2 THEN RETURN acc2 ENDIF
-    RETURN aux(n - 1, acc2, acc1 + acc2)
-ENDFUNCTION
-
-DECLARE i:INTEGER
-FOR i <- 0 TO 100000
-    aux(47, 0, 1)
-NEXT i
-`);
+    const [value, setValue] = useState(`DECLARE i: INTEGER
+    
+INPUT i
+OUTPUT i`);
 
     const [ast, setAst] = useState(null);
 
