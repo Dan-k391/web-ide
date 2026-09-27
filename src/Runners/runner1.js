@@ -43,26 +43,26 @@ export async function runtime(code, output, setHandleInput, op) {
 
     const inputInteger = () => new Promise(resolve => {
         // resolve(parseInt(prompt("Enter an integer")));
-        setHandleInput((str) => {
+        setHandleInput(() => (str) => {
             console.log(str);
             resolve(parseInt(str));
             setHandleInput(null);
         });
     });
     const inputReal = () => new Promise(resolve => {
-        setHandleInput((str) => {
+        setHandleInput(() => (str) => {
             resolve(parseFloat(str));
             setHandleInput(null);
         });
     });
     const inputChar = () => new Promise(resolve => {
-        setHandleInput((str) => {
+        setHandleInput(() => (str) => {
             resolve(str.charCodeAt(0));
             setHandleInput(null);
         });
     });
     const inputString = () => new Promise(resolve => {
-        setHandleInput((str) => {
+        setHandleInput(() => (str) => {
             const bytes = new TextEncoder().encode(str);
             // currently allocate on the heap
             // maybe allocate on a separate page later
@@ -76,37 +76,17 @@ export async function runtime(code, output, setHandleInput, op) {
         });
     });
     const inputBoolean = () => new Promise(resolve => {
-        setHandleInput((str) => {
+        setHandleInput(() => (str) => {
             resolve(str === "TRUE" ? 1 : 0);
             setHandleInput(null);
         });
     });
 
-    const suspendingInputInteger = new WebAssembly.Function(
-        { parameters: ["externref"], results: ["i32"] },
-        inputInteger,
-        { suspending: "first" }
-    );
-    const suspendingInputReal = new WebAssembly.Function(
-        { parameters: ["externref"], results: ["f64"] },
-        inputReal,
-        { suspending: "first" }
-    );
-    const suspendingInputChar = new WebAssembly.Function(
-        { parameters: ["externref"], results: ["i32"] },
-        inputChar,
-        { suspending: "first" }
-    );
-    const suspendingInputString = new WebAssembly.Function(
-        { parameters: ["externref"], results: ["i32"] },
-        inputString,
-        { suspending: "first" }
-    );
-    const suspendingInputBoolean = new WebAssembly.Function(
-        { parameters: ["externref"], results: ["i32"] },
-        inputBoolean,
-        { suspending: "first" }
-    );
+    const suspendingInputInteger = new WebAssembly.Suspending(inputInteger);
+    const suspendingInputReal = new WebAssembly.Suspending(inputReal);
+    const suspendingInputChar = new WebAssembly.Suspending(inputChar);
+    const suspendingInputString = new WebAssembly.Suspending(inputString);
+    const suspendingInputBoolean = new WebAssembly.Suspending(inputBoolean);
 
     const importObect = {
         env: {
@@ -144,14 +124,11 @@ export async function runtime(code, output, setHandleInput, op) {
 
     const { instance } = await WebAssembly.instantiate(wasm, importObect);
 
-    const main = new WebAssembly.Function(
-        { parameters: [], results: ["externref"] },
-        instance.exports.main,
-        { promising: "first" }
-    );
+    const main = WebAssembly.promising(instance.exports.main);
 
     const start = new Date().getTime();
-    await main();
+    // The old compiler still emits a suspender parameter; modern JSPI does not use it.
+    await main(null);
     const end = new Date().getTime();
     return end - start;
 }
